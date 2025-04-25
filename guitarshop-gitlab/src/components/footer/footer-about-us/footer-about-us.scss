@@ -1,0 +1,21 @@
+.footer-about-us {
+  width: 140px;
+  margin-right: 20px;
+}
+
+.footer-about-us__heading {
+  padding-left: 1px;
+}
+
+.footer-about-us__paragraph {
+  margin: 0;
+  letter-spacing: 0.02em;
+
+  &--first {
+    margin-top: 18px;
+  }
+
+  &--second {
+    margin-top: 12px;
+  }
+}

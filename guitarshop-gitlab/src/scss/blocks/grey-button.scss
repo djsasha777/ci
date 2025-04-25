@@ -1,0 +1,16 @@
+.grey-button {
+  color: $general-white;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 2px;
+  background-color: $checkbox-active;
+
+  &:hover,
+  &:focus {
+    background-color: $price-dash;
+  }
+
+  &:active {
+    background-color: $input-border;
+  }
+}

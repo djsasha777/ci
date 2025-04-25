@@ -1,0 +1,48 @@
+.basket-notification-modal {
+  margin: auto;
+  width: 740px;
+  background-color: $general-white;
+  box-shadow: 0px 5px 6px $modal-shadow;
+  border-radius: 4px;
+  padding: 28px 50px;
+  position: relative;
+}
+
+.basket-notification-modal__heading {
+  font-size: 18px;
+  color: $breadcrumbs-color;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.basket-notification-modal__links-list {
+  margin: 36px auto 10px;
+  padding: 0;
+  list-style: none;
+  width: 477px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.basket-notification-modal__links-item {
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.basket-notification-modal__link {
+  display: block;
+  width: 220px;
+  height: 46px;
+  padding: 13px 2px 0 0;
+  letter-spacing: 0.07em;
+}
+
+.basket-notification-modal__close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}

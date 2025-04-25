@@ -1,0 +1,34 @@
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+  height: 100%;
+}
+
+body {
+  font-family: "Droid Sans", "Arial", sans-serif;
+  font-size: 16px;
+  color: $general-black;
+  font-weight: 400;
+  background-color: $general-white;
+  min-width: $desktop-width;
+  width: 100%;
+  height: 100%;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  text-decoration: none;
+}
+
+.root {
+  height: 100%;
+}

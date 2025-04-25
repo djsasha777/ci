@@ -1,0 +1,17 @@
+.white-button {
+  color: $price-dash;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 2px;
+  background-color: $general-white;
+  border: 1px solid $price-dash;
+
+  &:hover,
+  &:focus {
+    opacity: 0.7;
+  }
+
+  &:active {
+    opacity: 0.5;
+  }
+}

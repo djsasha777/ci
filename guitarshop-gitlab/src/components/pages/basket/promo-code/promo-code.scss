@@ -1,0 +1,71 @@
+.promo-code {
+  margin-top: 38px;
+}
+
+.promo-code__heading {
+  font-size: 16px;
+  letter-spacing: 0.07em;
+  margin: 0;
+}
+
+.promo-code__paragraph {
+  margin: 0;
+  margin-top: 9px;
+}
+
+.promo-code__label {
+  font-size: 12px;
+  letter-spacing: 0.07em;
+  display: block;
+  padding-left: 1px;
+  width: fit-content;
+  padding-bottom: 19px;
+  cursor: pointer;
+}
+
+.promo-code__content-wrapper {
+  width: 403px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.promo-code__input {
+  width: 170px;
+  height: 36px;
+  border: 2px solid $filter-border;
+  border-radius: 2px;
+  text-align: center;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+
+  &:hover,
+  &:focus {
+    outline: none;
+    border-color: $price-dash;
+  }
+}
+
+.promo-code__form-submit-button {
+  width: 200px;
+  height: 36px;
+  border: none;
+  padding: 0;
+  padding-left: 7px;
+  letter-spacing: 0.07em;
+  cursor: pointer;
+}
+
+.promo-code__invalid {
+  position: relative;
+
+  &::after {
+    content: "Промокод не действителен";
+    position: absolute;
+    top: -16px;
+    left: 1px;
+    color: $error-message;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    z-index: -1;
+  }
+}

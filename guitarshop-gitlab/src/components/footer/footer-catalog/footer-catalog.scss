@@ -1,0 +1,29 @@
+.footer-catalog {
+  width: 140px;
+  margin-right: 22px;
+}
+
+.footer-catalog__list {
+  margin: 0;
+  margin-top: 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-catalog__item {
+  margin-bottom: 8px;
+}
+
+.footer-catalog__link {
+  color: inherit;
+  letter-spacing: 0.13em;
+
+  &:hover,
+  &:focus {
+    opacity: 0.6;
+  }
+
+  &:active {
+    opacity: 0.3;
+  }
+}

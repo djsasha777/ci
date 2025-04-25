@@ -1,0 +1,16 @@
+.orange-button {
+  color: $general-white;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 2px;
+  background-color: $buy-link-background;
+
+  &:hover,
+  &:focus {
+    background-color: $buy-link-hover-background;
+  }
+
+  &:active {
+    background-color: $buy-link-active-background;
+  }
+}

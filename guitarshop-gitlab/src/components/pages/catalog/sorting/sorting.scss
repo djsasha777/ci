@@ -1,0 +1,91 @@
+.sorting {
+  margin-top: 2px;
+  margin-left: 2px;
+  display: flex;
+}
+
+.sorting__heading {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+
+.sorting__fieldset {
+  margin: 0;
+  margin-left: 19px;
+  padding: 0;
+  border: none;
+  flex-grow: 1;
+  display: flex;
+  justify-content: space-between;
+}
+
+.sorting__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+
+  &--type {
+    width: 300px;
+  }
+
+  &--direction {
+    width: 58px;
+    justify-content: space-between;
+    margin-top: -3px;
+    margin-right: 8px;
+  }
+}
+
+.sorting__item {
+  &--type {
+    margin-right: 34px;
+  }
+}
+
+.sorting__label {
+  cursor: pointer;
+  user-select: none;
+
+  &--type {
+    letter-spacing: 0.07em;
+    color: $price-dash;
+  }
+
+  &--direction {
+    display: block;
+    width: 22px;
+    height: 21px;
+    background-image: url("data:image/svg+xml,%3Csvg width='14' height='11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M.583 10.667h12.833L7 .584.583 10.667Z' fill='%23000'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.6;
+  }
+
+  &--descending {
+    transform: rotate(180deg);
+  }
+}
+
+.sorting__radio-input:checked + .sorting__label {
+  &--type {
+    color: $general-black;
+  }
+
+  &--direction {
+    opacity: 1;
+  }
+}
+
+.sorting__radio-input:hover + .sorting__label,
+.sorting__radio-input:focus + .sorting__label {
+  opacity: 0.3;
+}
+
+.sorting__radio-input:active + .sorting__label,
+.sorting__radio-input + .sorting__label:active {
+  opacity: 0.6;
+}

@@ -1,0 +1,33 @@
+.footer-info {
+  width: 120px;
+  margin-right: 117px;
+}
+
+.footer-info__heading {
+  padding-left: 1px;
+}
+
+.footer-info__list {
+  margin: 0;
+  margin-top: 19px;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-info__item {
+  margin-bottom: 8px;
+}
+
+.footer-info__link {
+  color: inherit;
+  letter-spacing: 0.13em;
+
+  &:hover,
+  &:focus {
+    opacity: 0.6;
+  }
+
+  &:active {
+    opacity: 0.3;
+  }
+}

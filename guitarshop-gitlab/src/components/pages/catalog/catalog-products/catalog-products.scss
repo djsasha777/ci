@@ -1,0 +1,14 @@
+.catalog-products {
+  margin-top: 30px;
+}
+
+.catalog-products__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: min-content min-content min-content;
+  column-gap: 20px;
+  row-gap: 30px;
+  transform: translateX(2px);
+}

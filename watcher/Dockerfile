@@ -1,0 +1,9 @@
+FROM python:3.10.0b3-alpine3.14
+ENV LBTYPE \
+    DOMAIN
+WORKDIR /app
+ADD wa/main.py /app
+ADD wa/requirements.txt /app/
+EXPOSE 8088
+RUN pip install --no-cache-dir -r requirements.txt
+CMD ["python", "/app/main.py"]

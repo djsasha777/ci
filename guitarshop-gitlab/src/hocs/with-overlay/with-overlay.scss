@@ -1,0 +1,12 @@
+.overlay {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: $overlay-color;
+  z-index: 1;
+  overflow-y: auto;
+}
