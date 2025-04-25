@@ -1,11 +1,14 @@
-name: tunnel
+name: watcher
 on:
   push:
     tags:
       - "*.*.*"
   pull_request:
     branches: [ "main" ]
+    paths:
+      - watcher/**
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,16 +20,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Docker meta
-        id: metatunnel
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/tunnel
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=sha
-      - name: Docker meta 2
         id: metawatcher
         uses: docker/metadata-action@v5
         with:
@@ -36,17 +29,10 @@ jobs:
             type=ref,event=branch
             type=semver,pattern={{version}}
             type=sha 
-      - name: Build ni
+      - name: Build watcher
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ni/Dockerfile
-          push: true
-          tags: ${{ steps.metatunnel.outputs.tags }}
-      - name: Build wa
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: wa/Dockerfile
+          file: watcher/Dockerfile
           push: true
           tags: ${{ steps.metawatcher.outputs.tags }}
