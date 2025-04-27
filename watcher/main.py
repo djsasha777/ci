@@ -14,7 +14,7 @@ def update_haproxy_config(svc):
     print(f"Обновляем конфигурацию HAProxy для сервиса {svc.metadata.name}.{domain}")
     
     # Здесь вы можете добавить код для изменения конфигурации HAProxy,
-    # используя, например, библиотеку py-haproxy-config
+
     pass
 
 def main():
