@@ -4,6 +4,8 @@ on:
     tags:
       - "*.*.*"
     branches: [ "main" ]
+    paths:
+      - tunnel/**
   pull_request:
     branches: [ "main" ]
     paths:

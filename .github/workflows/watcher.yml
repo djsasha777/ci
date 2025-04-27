@@ -4,6 +4,8 @@ on:
     tags:
       - "*.*.*"
     branches: [ "main" ]
+    paths:
+      - watcher/**
   pull_request:
     branches: [ "main" ]
     paths:
