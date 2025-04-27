@@ -35,8 +35,8 @@ jobs:
         - name : build docker image and push
           uses: docker/build-push-action@v3
           with:
-            context: iotapp
-            file: Dockerfile
+            context: iotapp/
+            file: iotapp/Dockerfile
             push: true
             tags: |
               ghcr.io/${{ github.repository }}/${{ github.workflow }}/iotbackend:${{ steps.short-sha.outputs.sha }}             
