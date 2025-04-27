@@ -4,8 +4,8 @@ ENV MONGODB_USERNAME \
     MONGODB_SERVER \
     MONGODB_DATABASE
 WORKDIR /nasos
-ADD main.py /nasos
-ADD requirements.txt /nasos
+ADD nasos/main.py /nasos
+ADD nasos/requirements.txt /nasos
 EXPOSE 8444
 RUN pip install --no-cache-dir -r requirements.txt
 CMD ["python", "/nasos/main.py"]
