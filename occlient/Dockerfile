@@ -1,6 +1,6 @@
 FROM alpine:3.16.8
 COPY occlient/entrypoint.sh /
-entrypoint chmod u+x entrypoint.sh
+RUN chmod u+x /entrypoint.sh
 # RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
 #     sed -i 's/AllowTcpForwarding no/AllowTcpForwarding yes/' /etc/ssh/sshd_config && \
 #     sed -i 's/#AllowAgentForwarding yes/AllowAgentForwarding yes/' /etc/ssh/sshd_config && \
