@@ -9,6 +9,5 @@ RUN apk update && apk add --no-cache \
   gnutls \
   libssl-dev \
   openconnect \
-  openssl \
   curl
 CMD ["./entrypoint.sh"]
