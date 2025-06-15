@@ -1,4 +1,4 @@
-FROM alpine:3.17
+FROM ubuntu:22.04
 COPY occlient/entrypoint.sh /
 entrypoint chmod u+x entrypoint.sh
 # RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
