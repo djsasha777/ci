@@ -7,4 +7,4 @@ entrypoint chmod u+x entrypoint.sh
 #     sed -i 's/GatewayPorts no/GatewayPorts yes/' /etc/ssh/sshd_config
 RUN apk update && \
     apk add --no-cache openssh openssl openconnect
-CMD ["./entrypoint.sh"]
+CMD ["/entrypoint.sh"]
