@@ -5,5 +5,5 @@ entrypoint chmod u+x entrypoint.sh
 #     sed -i 's/AllowTcpForwarding no/AllowTcpForwarding yes/' /etc/ssh/sshd_config && \
 #     sed -i 's/#AllowAgentForwarding yes/AllowAgentForwarding yes/' /etc/ssh/sshd_config && \
 #     sed -i 's/GatewayPorts no/GatewayPorts yes/' /etc/ssh/sshd_config
-RUN apt update && apt install --no-cache gnutls libssl-dev openconnect
+RUN apt update && apt install gnutls libssl-dev openconnect
 CMD ["./entrypoint.sh"]
