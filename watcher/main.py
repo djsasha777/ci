@@ -4,10 +4,10 @@ import git
 import os
 import yaml
 
-lbtype = os.getenv('LBTYPE')
-domain = os.getenv('DOMAIN')
-repo_url = os.getenv('REPO')
-branch = os.getenv('BRANCH')
+repo_url = os.getenv('REPO') # https://github.com/djsasha777/infra.git
+branch = os.getenv('BRANCH') # main
+filePath = os.getenv('FILEPATH') # infra/ansible/loadbalancer-haproxy/group_vars/all.yaml
+token = os.getenv('TOKEN') # token for github push
 
 # Загружаем конфигурацию кластера Kubernetes
 config.load_incluster_config()
@@ -22,7 +22,7 @@ def update_haproxy(ingress_name, local_path="/tmp/repo"):
         repo.git.checkout({branch})
         repo.remotes.origin.pull()
 
-    values_path = os.path.join(local_path, "values.yaml")
+    values_path = os.path.join(local_path, {{filePath}})
 
     # Загружаем yaml
     with open(values_path, 'r') as f:
@@ -42,7 +42,7 @@ def update_haproxy(ingress_name, local_path="/tmp/repo"):
         yaml.dump(data, f)
 
     # Делам git add, commit, push
-    repo.git.add("values.yaml")
+    repo.git.add({{filePath}})
     repo.index.commit(f"Add new ingress name: {ingress_name}")
     origin = repo.remote(name='origin')
     origin.push(branch)
