@@ -1,6 +1,8 @@
 FROM python:3.10.0b3-alpine3.14
-ENV LBTYPE \
-    DOMAIN
+ENV REPO \
+    BRANCH \
+    FILEPATH \
+    TOKEN
 WORKDIR /app
 ADD watcher/main.py /app
 ADD watcher/requirements.txt /app/
