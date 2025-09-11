@@ -48,7 +48,7 @@ def clone_or_update_repo(auth_repo_url, branch, repo_path="/tmp/repo"):
         raise
 
 
-def update_haproxy(repo, ingress_name, ingress_ip, has_issuer):
+def update_haproxy(repo, subdomain, ingress_ip, has_issuer):
     try:
         values_path = os.path.join(repo.working_tree_dir, filePath)
 
@@ -64,7 +64,7 @@ def update_haproxy(repo, ingress_name, ingress_ip, has_issuer):
         found_acme = False
 
         for entry in data["haproxySubdomain"]:
-            if entry.get("name") == ingress_name:
+            if entry.get("name") == subdomain:
                 entry["ip"] = ingress_ip
                 entry["port"] = 443
                 entry["proxy"] = False
@@ -73,7 +73,7 @@ def update_haproxy(repo, ingress_name, ingress_ip, has_issuer):
 
         if has_issuer:
             for entry in data["acmeSubdomain"]:
-                if entry.get("name") == ingress_name:
+                if entry.get("name") == subdomain:
                     entry["ip"] = ingress_ip
                     entry["port"] = 80
                     found_acme = True
@@ -81,7 +81,7 @@ def update_haproxy(repo, ingress_name, ingress_ip, has_issuer):
 
         if not found_haproxy:
             data["haproxySubdomain"].append({
-                "name": ingress_name,
+                "name": subdomain,
                 "ip": ingress_ip,
                 "port": 443,
                 "proxy": False
@@ -89,7 +89,7 @@ def update_haproxy(repo, ingress_name, ingress_ip, has_issuer):
 
         if has_issuer and not found_acme:
             data["acmeSubdomain"].append({
-                "name": ingress_name,
+                "name": subdomain,
                 "ip": ingress_ip,
                 "port": 80
             })
@@ -98,38 +98,38 @@ def update_haproxy(repo, ingress_name, ingress_ip, has_issuer):
             yaml.dump(data, f, default_flow_style=False)
 
         repo.git.add(filePath)
-        repo.index.commit(f"Update haproxySubdomain with ingress name: {ingress_name}")
+        repo.index.commit(f"Update haproxySubdomain with subdomain: {subdomain}")
         origin = repo.remote(name='origin')
         origin.push(branch)
-        logger.info(f"Git changes pushed for {ingress_name}")
+        logger.info(f"Git changes pushed for {subdomain}")
 
     except Exception as e:
-        logger.error(f"Error in update_haproxy for ingress {ingress_name}: {e}")
+        logger.error(f"Error in update_haproxy for subdomain {subdomain}: {e}")
 
 
-def remove_ingress_from_yaml(repo, ingress_name):
+def remove_ingress_from_yaml(repo, subdomain):
     try:
         values_path = os.path.join(repo.working_tree_dir, filePath)
         with open(values_path, 'r') as f:
             data = yaml.safe_load(f) or {}
 
         if "haproxySubdomain" in data and data["haproxySubdomain"]:
-            data["haproxySubdomain"] = [entry for entry in data["haproxySubdomain"] if entry.get("name") != ingress_name]
+            data["haproxySubdomain"] = [entry for entry in data["haproxySubdomain"] if entry.get("name") != subdomain]
 
         if "acmeSubdomain" in data and data["acmeSubdomain"]:
-            data["acmeSubdomain"] = [entry for entry in data["acmeSubdomain"] if entry.get("name") != ingress_name]
+            data["acmeSubdomain"] = [entry for entry in data["acmeSubdomain"] if entry.get("name") != subdomain]
 
         with open(values_path, 'w') as f:
             yaml.dump(data, f, default_flow_style=False)
 
         repo.git.add(filePath)
-        repo.index.commit(f"Remove ingress {ingress_name} from haproxy and acme subdomains")
+        repo.index.commit(f"Remove ingress {subdomain} from haproxy and acme subdomains")
         origin = repo.remote(name='origin')
         origin.push(branch)
-        logger.info(f"Removed ingress {ingress_name} and pushed changes")
+        logger.info(f"Removed ingress {subdomain} and pushed changes")
 
     except Exception as e:
-        logger.error(f"Error in remove_ingress_from_yaml for ingress {ingress_name}: {e}")
+        logger.error(f"Error in remove_ingress_from_yaml for subdomain {subdomain}: {e}")
 
 
 def add_service_to_haproxy(repo, service_name, service_ip):
@@ -211,23 +211,23 @@ def rebuild_yaml_from_current(repo):
             if annotations.get('kubernetes.io/ingress.class') != 'nginx':
                 continue
 
-            name = ingress.metadata.name
-            ingress_ip = None
-            if ingress.status.load_balancer and ingress.status.load_balancer.ingress:
-                if len(ingress.status.load_balancer.ingress) > 0:
-                    ingress_ip = ingress.status.load_balancer.ingress[0].ip
+            subdomain = annotations.get('subdomain')
+            if not subdomain:
+                continue
+
+            ingress_ip = annotations.get('inControllerIP')
             has_issuer = annotations.get('cert-manager.io/cluster-issuer') == "letsencrypt-production"
 
             if ingress_ip:
                 data["haproxySubdomain"].append({
-                    "name": name,
+                    "name": subdomain,
                     "ip": ingress_ip,
                     "port": 443,
                     "proxy": False
                 })
                 if has_issuer:
                     data["acmeSubdomain"].append({
-                        "name": name,
+                        "name": subdomain,
                         "ip": ingress_ip,
                         "port": 80
                     })
@@ -242,8 +242,7 @@ def rebuild_yaml_from_current(repo):
             service_name = service.metadata.name
             service_ip = None
             if service.status.load_balancer and service.status.load_balancer.ingress:
-                if len(service.status.load_balancer.ingress) > 0:
-                    service_ip = service.status.load_balancer.ingress[0].ip
+                service_ip = service.status.load_balancer.ingress[0].ip if len(service.status.load_balancer.ingress) > 0 else None
 
             if service_ip:
                 if not any(entry["name"] == service_name for entry in data["haproxySubdomain"]):
@@ -280,20 +279,19 @@ async def watch_ingress(repo):
                 if annotations.get('kubernetes.io/ingress.class') != 'nginx':
                     continue
 
-                name = ingress.metadata.name
+                subdomain = annotations.get('subdomain')
+                if not subdomain:
+                    continue  # пропускаем если аннотация subdomain отсутствует
 
                 if event_type == 'ADDED':
-                    ingress_ip = None
-                    if ingress.status.load_balancer and ingress.status.load_balancer.ingress:
-                        if len(ingress.status.load_balancer.ingress) > 0:
-                            ingress_ip = ingress.status.load_balancer.ingress[0].ip
+                    ingress_ip = annotations.get('inControllerIP')
                     has_issuer = annotations.get('cert-manager.io/cluster-issuer') == "letsencrypt-production"
-                    logger.info(f"New ingress - Name: {name}, IP: {ingress_ip}, Has issuer: {has_issuer}")
-                    update_haproxy(repo, name, ingress_ip, has_issuer)
+                    logger.info(f"New ingress - Subdomain: {subdomain}, IP: {ingress_ip}, Has issuer: {has_issuer}")
+                    update_haproxy(repo, subdomain, ingress_ip, has_issuer)
 
                 elif event_type == 'DELETED':
-                    logger.info(f"Ingress deleted - Name: {name}. Removing from YAML...")
-                    remove_ingress_from_yaml(repo, name)
+                    logger.info(f"Ingress deleted - Subdomain: {subdomain}. Removing from YAML...")
+                    remove_ingress_from_yaml(repo, subdomain)
 
         except Exception as e:
             logger.error(f"Watch ingress error: {e}")
@@ -318,8 +316,7 @@ async def watch_service(repo):
                 if event_type == 'ADDED':
                     service_ip = None
                     if service.status.load_balancer and service.status.load_balancer.ingress:
-                        if len(service.status.load_balancer.ingress) > 0:
-                            service_ip = service.status.load_balancer.ingress[0].ip
+                        service_ip = service.status.load_balancer.ingress[0].ip if len(service.status.load_balancer.ingress) > 0 else None
                     logger.info(f"New service - Name: {service_name}, IP: {service_ip}, Label found: {external_label}")
                     if service_ip:
                         add_service_to_haproxy(repo, service_name, service_ip)
@@ -337,7 +334,7 @@ async def main_async():
     logger.info("Starting Kubernetes ingress and service watcher (async)")
 
     try:
-        # Исправлено: load_incluster_config - синхронная функция, не нужно await
+        # load_incluster_config - синхронная функция
         config.load_incluster_config()
     except Exception as e:
         logger.error(f"Error loading in-cluster config: {e}")
