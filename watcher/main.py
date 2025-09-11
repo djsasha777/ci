@@ -362,7 +362,7 @@ async def main_async():
         return
 
     async with client.ApiClient() as api_client:
-        await rebuild_yaml_from_current(repo, api_client)
+#        await rebuild_yaml_from_current(repo, api_client)
         await asyncio.gather(
             watch_ingress(repo, api_client),
             watch_service(repo, api_client),
