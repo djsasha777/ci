@@ -203,15 +203,15 @@ def remove_service_from_haproxy(repo, service_name):
         logger.error(f"Error in remove_service_from_haproxy for service {service_name}: {e}")
 
 
-def rebuild_yaml_from_current(repo):
+async def rebuild_yaml_from_current(repo):
     try:
         values_path = os.path.join(repo.working_tree_dir, filePath)
 
         networking_v1 = client.NetworkingV1Api()
         core_v1 = client.CoreV1Api()
 
-        ingresses = asyncio.run(networking_v1.list_ingress_for_all_namespaces()).items
-        services = asyncio.run(core_v1.list_service_for_all_namespaces()).items
+        ingresses = (await networking_v1.list_ingress_for_all_namespaces()).items
+        services = (await core_v1.list_service_for_all_namespaces()).items
 
         data = {
             "haproxySubdomain": [],
@@ -362,9 +362,8 @@ async def main_async():
         logger.error(f"Error setting up git repo: {e}")
         return
 
-    # Rebuild YAML из текущего состояния кластера в отдельном потоке
-    loop = asyncio.get_running_loop()
-    await loop.run_in_executor(None, rebuild_yaml_from_current, repo)
+    # Теперь вызываем rebuild_yaml_from_current как async функцию
+    await rebuild_yaml_from_current(repo)
 
     # Запуск watchers одновременно
     await asyncio.gather(
