@@ -202,85 +202,6 @@ def remove_service_from_haproxy(repo, service_name):
     except Exception as e:
         logger.error(f"Error in remove_service_from_haproxy for service {service_name}: {e}")
 
-
-async def rebuild_yaml_from_current(repo, api_client):
-    try:
-        values_path = os.path.join(repo.working_tree_dir, filePath)
-
-        networking_v1 = client.NetworkingV1Api(api_client)
-        core_v1 = client.CoreV1Api(api_client)
-
-        ingresses = (await networking_v1.list_ingress_for_all_namespaces()).items
-        services = (await core_v1.list_service_for_all_namespaces()).items
-
-        data = {
-            "haproxySubdomain": [],
-            "acmeSubdomain": []
-        }
-
-        for ingress in ingresses:
-            annotations = ingress.metadata.annotations or {}
-            if annotations.get('kubernetes.io/ingress.class') != 'nginx':
-                continue
-
-            subdomain = annotations.get('subdomain')
-            if not subdomain:
-                continue
-
-            ingress_ip = annotations.get('inControllerIP')
-            has_issuer = annotations.get('cert-manager.io/cluster-issuer') == "letsencrypt-production"
-
-            if ingress_ip:
-                data["haproxySubdomain"].append({
-                    "name": subdomain,
-                    "ip": ingress_ip,
-                    "port": 443,
-                    "proxy": False
-                })
-                if has_issuer:
-                    data["acmeSubdomain"].append({
-                        "name": subdomain,
-                        "ip": ingress_ip,
-                        "port": 80
-                    })
-
-        for service in services:
-            if service.spec.type != "LoadBalancer":
-                continue
-            labels = service.metadata.labels or {}
-            if not external_label or external_label not in labels:
-                continue
-
-            service_name = service.metadata.name
-            service_ip = None
-            if service.status.load_balancer and service.status.load_balancer.ingress:
-                service_ip = service.status.load_balancer.ingress[0].ip if len(service.status.load_balancer.ingress) > 0 else None
-
-            if service_ip:
-                if not any(entry["name"] == service_name for entry in data["haproxySubdomain"]):
-                    data["haproxySubdomain"].append({
-                        "name": service_name,
-                        "ip": service_ip,
-                        "port": 443,
-                        "proxy": False
-                    })
-
-        with open(values_path, 'w') as f:
-            yaml.dump(data, f, default_flow_style=False)
-
-        repo.git.add(filePath)
-        if repo.is_dirty(untracked_files=False):
-            repo.index.commit("Rebuild haproxySubdomain and acmeSubdomain from current ingress and services")
-            origin = repo.remote(name='origin')
-            origin.push(branch)
-            logger.info("Git changes pushed after rebuilding YAML from current cluster state")
-        else:
-            logger.info("No changes detected after rebuilding YAML, skipping commit and push")
-
-    except Exception as e:
-        logger.error(f"Error in rebuild_yaml_from_current: {e}")
-
-
 async def watch_ingress(repo, api_client):
     networking_v1 = client.NetworkingV1Api(api_client)
     w = watch.Watch()
@@ -362,7 +283,6 @@ async def main_async():
         return
 
     async with client.ApiClient() as api_client:
-#        await rebuild_yaml_from_current(repo, api_client)
         await asyncio.gather(
             watch_ingress(repo, api_client),
             watch_service(repo, api_client),
