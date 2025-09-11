@@ -1,12 +1,19 @@
-FROM python:3.10.0b3-alpine3.14
-ENV REPO \
-    BRANCH \
-    FILEPATH \
-    TOKEN \
-    EXTERNAL
+FROM python:3.10-alpine3.14
+
+ENV REPO=""
+ENV BRANCH=""
+ENV FILEPATH=""
+ENV TOKEN=""
+ENV EXTERNAL=""
+
 WORKDIR /app
-ADD watcher/main.py /app
-ADD watcher/requirements.txt /app/
+COPY watcher/main.py /app/main.py
+COPY watcher/requirements.txt /app/
+
 EXPOSE 8088
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Обновить pip и установить зависимости
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
 CMD ["python", "/app/main.py"]
