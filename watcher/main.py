@@ -98,10 +98,13 @@ def update_haproxy(repo, subdomain, ingress_ip, has_issuer):
             yaml.dump(data, f, default_flow_style=False)
 
         repo.git.add(filePath)
-        repo.index.commit(f"Update haproxySubdomain with subdomain: {subdomain}")
-        origin = repo.remote(name='origin')
-        origin.push(branch)
-        logger.info(f"Git changes pushed for {subdomain}")
+        if repo.is_dirty(untracked_files=False):
+            repo.index.commit(f"Update haproxySubdomain with subdomain: {subdomain}")
+            origin = repo.remote(name='origin')
+            origin.push(branch)
+            logger.info(f"Git changes pushed for {subdomain}")
+        else:
+            logger.info(f"No changes detected for subdomain {subdomain}, skipping commit and push")
 
     except Exception as e:
         logger.error(f"Error in update_haproxy for subdomain {subdomain}: {e}")
@@ -123,10 +126,13 @@ def remove_ingress_from_yaml(repo, subdomain):
             yaml.dump(data, f, default_flow_style=False)
 
         repo.git.add(filePath)
-        repo.index.commit(f"Remove ingress {subdomain} from haproxy and acme subdomains")
-        origin = repo.remote(name='origin')
-        origin.push(branch)
-        logger.info(f"Removed ingress {subdomain} and pushed changes")
+        if repo.is_dirty(untracked_files=False):
+            repo.index.commit(f"Remove ingress {subdomain} from haproxy and acme subdomains")
+            origin = repo.remote(name='origin')
+            origin.push(branch)
+            logger.info(f"Removed ingress {subdomain} and pushed changes")
+        else:
+            logger.info(f"No changes detected for ingress {subdomain}, skipping commit and push")
 
     except Exception as e:
         logger.error(f"Error in remove_ingress_from_yaml for subdomain {subdomain}: {e}")
@@ -160,10 +166,13 @@ def add_service_to_haproxy(repo, service_name, service_ip):
             yaml.dump(data, f, default_flow_style=False)
 
         repo.git.add(filePath)
-        repo.index.commit(f"Add/update service {service_name} in haproxySubdomain")
-        origin = repo.remote(name='origin')
-        origin.push(branch)
-        logger.info(f"Git changes pushed for service {service_name}")
+        if repo.is_dirty(untracked_files=False):
+            repo.index.commit(f"Add/update service {service_name} in haproxySubdomain")
+            origin = repo.remote(name='origin')
+            origin.push(branch)
+            logger.info(f"Git changes pushed for service {service_name}")
+        else:
+            logger.info(f"No changes detected for service {service_name}, skipping commit and push")
 
     except Exception as e:
         logger.error(f"Error in add_service_to_haproxy for service {service_name}: {e}")
@@ -182,10 +191,13 @@ def remove_service_from_haproxy(repo, service_name):
             yaml.dump(data, f, default_flow_style=False)
 
         repo.git.add(filePath)
-        repo.index.commit(f"Remove service {service_name} from haproxySubdomain")
-        origin = repo.remote(name='origin')
-        origin.push(branch)
-        logger.info(f"Removed service {service_name} and pushed changes")
+        if repo.is_dirty(untracked_files=False):
+            repo.index.commit(f"Remove service {service_name} from haproxySubdomain")
+            origin = repo.remote(name='origin')
+            origin.push(branch)
+            logger.info(f"Removed service {service_name} and pushed changes")
+        else:
+            logger.info(f"No changes detected for service {service_name}, skipping commit and push")
 
     except Exception as e:
         logger.error(f"Error in remove_service_from_haproxy for service {service_name}: {e}")
@@ -257,10 +269,13 @@ def rebuild_yaml_from_current(repo):
             yaml.dump(data, f, default_flow_style=False)
 
         repo.git.add(filePath)
-        repo.index.commit("Rebuild haproxySubdomain and acmeSubdomain from current ingress and services")
-        origin = repo.remote(name='origin')
-        origin.push(branch)
-        logger.info("Git changes pushed after rebuilding YAML from current cluster state")
+        if repo.is_dirty(untracked_files=False):
+            repo.index.commit("Rebuild haproxySubdomain and acmeSubdomain from current ingress and services")
+            origin = repo.remote(name='origin')
+            origin.push(branch)
+            logger.info("Git changes pushed after rebuilding YAML from current cluster state")
+        else:
+            logger.info("No changes detected after rebuilding YAML, skipping commit and push")
 
     except Exception as e:
         logger.error(f"Error in rebuild_yaml_from_current: {e}")
