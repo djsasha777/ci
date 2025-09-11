@@ -5,6 +5,7 @@ import logging
 from kubernetes_asyncio import client, config, watch
 import git
 
+
 # Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
@@ -12,6 +13,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S',
 )
 logger = logging.getLogger(__name__)
+
 
 repo_url = os.getenv('REPO')
 branch = os.getenv('BRANCH')
@@ -335,7 +337,8 @@ async def main_async():
     logger.info("Starting Kubernetes ingress and service watcher (async)")
 
     try:
-        await config.load_incluster_config()
+        # Исправлено: load_incluster_config - синхронная функция, не нужно await
+        config.load_incluster_config()
     except Exception as e:
         logger.error(f"Error loading in-cluster config: {e}")
         return
@@ -347,12 +350,11 @@ async def main_async():
         logger.error(f"Error setting up git repo: {e}")
         return
 
-    # Rebuild YAML from current cluster state synchronously (requires workaround)
-    # Because rebuild_yaml_from_current calls synchronous code from async, run in executor
+    # Rebuild YAML из текущего состояния кластера в отдельном потоке
     loop = asyncio.get_running_loop()
     await loop.run_in_executor(None, rebuild_yaml_from_current, repo)
 
-    # Run ingress and service watchers concurrently
+    # Запуск watchers одновременно
     await asyncio.gather(
         watch_ingress(repo),
         watch_service(repo),
