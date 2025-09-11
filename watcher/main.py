@@ -203,12 +203,12 @@ def remove_service_from_haproxy(repo, service_name):
         logger.error(f"Error in remove_service_from_haproxy for service {service_name}: {e}")
 
 
-async def rebuild_yaml_from_current(repo):
+async def rebuild_yaml_from_current(repo, api_client):
     try:
         values_path = os.path.join(repo.working_tree_dir, filePath)
 
-        networking_v1 = client.NetworkingV1Api()
-        core_v1 = client.CoreV1Api()
+        networking_v1 = client.NetworkingV1Api(api_client)
+        core_v1 = client.CoreV1Api(api_client)
 
         ingresses = (await networking_v1.list_ingress_for_all_namespaces()).items
         services = (await core_v1.list_service_for_all_namespaces()).items
@@ -281,8 +281,8 @@ async def rebuild_yaml_from_current(repo):
         logger.error(f"Error in rebuild_yaml_from_current: {e}")
 
 
-async def watch_ingress(repo):
-    networking_v1 = client.NetworkingV1Api()
+async def watch_ingress(repo, api_client):
+    networking_v1 = client.NetworkingV1Api(api_client)
     w = watch.Watch()
     while True:
         try:
@@ -313,8 +313,8 @@ async def watch_ingress(repo):
             await asyncio.sleep(10)
 
 
-async def watch_service(repo):
-    core_v1 = client.CoreV1Api()
+async def watch_service(repo, api_client):
+    core_v1 = client.CoreV1Api(api_client)
     w = watch.Watch()
     while True:
         try:
@@ -349,7 +349,6 @@ async def main_async():
     logger.info("Starting Kubernetes ingress and service watcher (async)")
 
     try:
-        # load_incluster_config - синхронная функция
         config.load_incluster_config()
     except Exception as e:
         logger.error(f"Error loading in-cluster config: {e}")
@@ -362,14 +361,12 @@ async def main_async():
         logger.error(f"Error setting up git repo: {e}")
         return
 
-    # Теперь вызываем rebuild_yaml_from_current как async функцию
-    await rebuild_yaml_from_current(repo)
-
-    # Запуск watchers одновременно
-    await asyncio.gather(
-        watch_ingress(repo),
-        watch_service(repo),
-    )
+    async with client.ApiClient() as api_client:
+        await rebuild_yaml_from_current(repo, api_client)
+        await asyncio.gather(
+            watch_ingress(repo, api_client),
+            watch_service(repo, api_client),
+        )
 
 
 if __name__ == "__main__":
