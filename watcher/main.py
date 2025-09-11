@@ -283,7 +283,7 @@ async def watch_ingress(repo):
                 if not subdomain:
                     continue  # пропускаем если аннотация subdomain отсутствует
 
-                if event_type == 'ADDED':
+                if event_type in ['ADDED', 'MODIFIED']:
                     ingress_ip = annotations.get('inControllerIP')
                     has_issuer = annotations.get('cert-manager.io/cluster-issuer') == "letsencrypt-production"
                     logger.info(f"New ingress - Subdomain: {subdomain}, IP: {ingress_ip}, Has issuer: {has_issuer}")
@@ -313,7 +313,7 @@ async def watch_service(repo):
 
                 service_name = service.metadata.name
 
-                if event_type == 'ADDED':
+                if event_type in ['ADDED', 'MODIFIED']:
                     service_ip = None
                     if service.status.load_balancer and service.status.load_balancer.ingress:
                         service_ip = service.status.load_balancer.ingress[0].ip if len(service.status.load_balancer.ingress) > 0 else None
